@@ -13,7 +13,7 @@ public protocol AsyncHttpResponseValidator {
     func validate(response: HTTPURLResponse, data: Data?) throws
 }
 
-// MARK: - Private Extensions
+// MARK: - Private extensions
 
 private extension URLError {
     static let invalidUrl = URLError(.badURL)
@@ -48,7 +48,6 @@ private extension Dictionary where Key == String {
 }
 
 private extension URLSession {
-    @available(iOS, deprecated: 15.0, message: "Это расширение больше ненужно. Можно перейти на прямой системный вызов")
     func asyncData(for request: URLRequest) async throws -> (Data, URLResponse) {
         if #available(iOS 15.0, *) {
             return try await data(for: request)
@@ -72,29 +71,35 @@ private extension URLSession {
 
 public class AsyncHttpJsonClient: AsyncHttpClient {
 
-    // MARK: - Private Properties
+    // MARK: - Public properties
 
     public lazy var session: URLSession = {
         URLSession(configuration: configuration)
     }()
 
+    // MARK: - Private properties
+
     private let configuration: URLSessionConfiguration
 
-    // Вызывается в случае сетевой ошибки.
+    // Вызывается в случае бросания исключения вследствии ошибки или проверки ответа.
     private let requestRetrier: AsyncHttpRequestRetrier?
     // Вызывается для валидации ответа.
     private let responseValidator: AsyncHttpResponseValidator?
+
+    private let dateFormatter: DateFormatter
 
     // MARK: - Initializers
 
     public init(
         configuration: URLSessionConfiguration = URLSessionConfiguration.default,
         requestRetrier: AsyncHttpRequestRetrier? = nil,
-        responseValidator: AsyncHttpResponseValidator? = nil
+        responseValidator: AsyncHttpResponseValidator? = nil,
+        dateFormatter: DateFormatter = ISO8601DateFormatterEx()
     ) {
         self.configuration = configuration
         self.requestRetrier = requestRetrier
         self.responseValidator = responseValidator
+        self.dateFormatter = dateFormatter
         setupSessionConfiguration()
     }
 
@@ -104,7 +109,7 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
     public func get<Target: Decodable>(
         url: URL,
         parameters: [String: Any],
-        tuners: [AsyncHttp.RequestTuners.Keys: AsyncHttp.RequestTuners]
+        tuners: [AsyncHttpRequestTuners.Keys: AsyncHttpRequestTuners]
     ) async throws -> Target {
         let targetUrl = try makeUrl(from: url, parameters: parameters)
         var request = URLRequest(
@@ -122,7 +127,7 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
     public func post<Body: Encodable, Target: Decodable>(
         url: URL,
         body: Body,
-        tuners: [AsyncHttp.RequestTuners.Keys: AsyncHttp.RequestTuners]
+        tuners: [AsyncHttpRequestTuners.Keys: AsyncHttpRequestTuners]
     ) async throws -> Target {
         try await perform(
             method: .post,
@@ -136,7 +141,7 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
     public func put<Body: Encodable, Target: Decodable>(
         url: URL,
         body: Body,
-        tuners: [AsyncHttp.RequestTuners.Keys: AsyncHttp.RequestTuners]
+        tuners: [AsyncHttpRequestTuners.Keys: AsyncHttpRequestTuners]
     ) async throws -> Target {
         try await perform(
             method: .put,
@@ -150,7 +155,7 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
     public func delete<Body: Encodable, Target: Decodable>(
         url: URL,
         body: Body,
-        tuners: [AsyncHttp.RequestTuners.Keys: AsyncHttp.RequestTuners]
+        tuners: [AsyncHttpRequestTuners.Keys: AsyncHttpRequestTuners]
     ) async throws -> Target {
         try await perform(
             method: .delete,
@@ -164,7 +169,7 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
     public func patch<Body: Encodable, Target: Decodable>(
         url: URL,
         body: Body,
-        tuners: [AsyncHttp.RequestTuners.Keys: AsyncHttp.RequestTuners]
+        tuners: [AsyncHttpRequestTuners.Keys: AsyncHttpRequestTuners]
     ) async throws -> Target {
         try await perform(
             method: .patch,
@@ -202,7 +207,7 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
         method: String,
         url: URL,
         body: Body,
-        tuners: [AsyncHttp.RequestTuners.Keys: AsyncHttp.RequestTuners]
+        tuners: [AsyncHttpRequestTuners.Keys: AsyncHttpRequestTuners]
     ) async throws -> Target {
         guard url.scheme != nil || url.baseURL?.scheme != nil else {
             throw URLError.invalidUrl
@@ -230,7 +235,7 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
 
     private func perform<Target: Decodable>(
         request: URLRequest,
-        tuners: [AsyncHttp.RequestTuners.Keys: AsyncHttp.RequestTuners]
+        tuners: [AsyncHttpRequestTuners.Keys: AsyncHttpRequestTuners]
     ) async throws -> Target {
         do {
             let (data, response) = try await session.asyncData(for: request)
@@ -247,7 +252,7 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
     private func handle<Target: Decodable>(
         data: Data?,
         response: URLResponse?,
-        tuners: [AsyncHttp.RequestTuners.Keys: AsyncHttp.RequestTuners]
+        tuners: [AsyncHttpRequestTuners.Keys: AsyncHttpRequestTuners]
     ) throws -> Target {
         guard let response, let data else {
             throw URLError.emptyResponse
@@ -257,7 +262,7 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
 
         do {
             var decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
+            decoder.dateDecodingStrategy = .formatted(dateFormatter)
 
             if case .decoder(let decoderTuner)? = tuners[.decoder] {
                 decoderTuner(&decoder)
@@ -266,7 +271,7 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
             let target = try decoder.decode(Target.self, from: data)
             return target
         } catch {
-            print("JSON parsing error: \(error)")
+            print("JSON parsing error: \(error)\n\ndata: \(String(data: data, encoding: .utf8) ?? "")")
             throw error
         }
     }

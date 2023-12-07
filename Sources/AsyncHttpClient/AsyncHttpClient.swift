@@ -3,74 +3,69 @@
 
 import Foundation
 
-public struct AsyncHttp {
+/// Тюнеры запросов
+public enum AsyncHttpRequestTuners {
+    /// Тюнер запроса - позволяет как угодно настроить запрос
+    case request((inout URLRequest) -> Void)
 
-    public enum RequestTuners {
-        case request((inout URLRequest) -> Void)
-        case encoder((inout JSONEncoder) -> Void)
-        case decoder((inout JSONDecoder) -> Void)
+    /// Тюнер кодера. Позволяет кастомизировать кодер
+    case encoder((inout JSONEncoder) -> Void)
 
-        public enum Keys {
-            case request
-            case encoder
-            case decoder
-        }
+    /// Тюнер декодера. Позволяет кастомизировать декодер
+    case decoder((inout JSONDecoder) -> Void)
+
+    public enum Keys {
+        case request
+        case encoder
+        case decoder
     }
-
 }
 
+/// Асинхронный HTTP клиент
 public protocol AsyncHttpClient {
 
     var session: URLSession { get }
 
-    /// GET HTTP method.
+    /// GET HTTP method
+    /// Для удобства формирования parameters удобно использовать CompactDictionaryRepresentable
     func get<Target: Decodable>(
         url: URL,
         parameters: [String: Any],
-        tuners: [AsyncHttp.RequestTuners.Keys: AsyncHttp.RequestTuners]
+        tuners: [AsyncHttpRequestTuners.Keys: AsyncHttpRequestTuners]
     ) async throws -> Target
 
     /// POST HTTP method
     func post<Body: Encodable, Target: Decodable>(
         url: URL,
         body: Body,
-        tuners: [AsyncHttp.RequestTuners.Keys: AsyncHttp.RequestTuners]
+        tuners: [AsyncHttpRequestTuners.Keys: AsyncHttpRequestTuners]
     ) async throws -> Target
 
     /// PUT HTTP method
     func put<Body: Encodable, Target: Decodable>(
         url: URL,
         body: Body,
-        tuners: [AsyncHttp.RequestTuners.Keys: AsyncHttp.RequestTuners]
+        tuners: [AsyncHttpRequestTuners.Keys: AsyncHttpRequestTuners]
     ) async throws -> Target
 
     /// DELETE HTTP method
     func delete<Body: Encodable, Target: Decodable>(
         url: URL,
         body: Body,
-        tuners: [AsyncHttp.RequestTuners.Keys: AsyncHttp.RequestTuners]
+        tuners: [AsyncHttpRequestTuners.Keys: AsyncHttpRequestTuners]
     ) async throws -> Target
 
     /// PATCH HTTP method
     func patch<Body: Encodable, Target: Decodable>(
         url: URL,
         body: Body,
-        tuners: [AsyncHttp.RequestTuners.Keys: AsyncHttp.RequestTuners]
+        tuners: [AsyncHttpRequestTuners.Keys: AsyncHttpRequestTuners]
     ) async throws -> Target
 
 }
 
+/// Расширение делающее необязательными некоторые параметры и возвращаемые результаты
 public extension AsyncHttpClient {
-
-    func emptyResponseCall(body: () async throws -> Void) async rethrows {
-        do {
-            try await body()
-        } catch let urlError as URLError {
-            if !((0..<400) ~= urlError.code.rawValue) {
-                throw urlError
-            }
-        }
-    }
 
     func get<Target: Decodable>(
         url: URL,
@@ -85,7 +80,7 @@ public extension AsyncHttpClient {
 
     func get<Target: Decodable>(
         url: URL,
-        tuners: [AsyncHttp.RequestTuners.Keys: AsyncHttp.RequestTuners]
+        tuners: [AsyncHttpRequestTuners.Keys: AsyncHttpRequestTuners]
     ) async throws -> Target {
         try await get(
             url: url,
@@ -166,4 +161,20 @@ public extension TimeInterval {
 
 public struct AsyncHttpClientEmpty: Codable {
     public init() {}
+}
+
+// MARK: - Private part
+
+private extension AsyncHttpClient {
+
+    func emptyResponseCall(body: () async throws -> Void) async rethrows {
+        do {
+            try await body()
+        } catch let urlError as URLError {
+            if !((0..<400) ~= urlError.code.rawValue) {
+                throw urlError
+            }
+        }
+    }
+
 }

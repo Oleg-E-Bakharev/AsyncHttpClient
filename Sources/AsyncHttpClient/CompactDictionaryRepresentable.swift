@@ -4,6 +4,7 @@
 import Foundation
 
 /// Протокол для представления структур в виде словаря, при этом удаляются все поля = nil
+/// Применяется для формирования параметров HTTP GET запросов.
 public protocol CompactDictionaryRepresentable {
     var compactDictionaryRepresentation: [String: Any] { get }
 }
