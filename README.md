@@ -1,6 +1,6 @@
 # iOS Swift AsyncHttpClient
 
-Useful yeasy to use Swift iOS and MacOS Async HTTP Client
+Useful Swift iOS and MacOS Async HTTP Client
 
 ## SPM Usage:
 ```swift
