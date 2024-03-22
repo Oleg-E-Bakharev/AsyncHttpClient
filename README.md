@@ -6,7 +6,7 @@ Motto: Perform http requests in one string
 ## SPM Usage:
 ```swift
     dependencies: [
-        .package(url: "https://github.com/Oleg-E-Bakharev/AsyncHttpClient", from: "1.0.0")
+        .package(url: "https://github.com/Oleg-E-Bakharev/AsyncHttpClient", from: "1.1.0")
     ],
 ```
 
