@@ -1,6 +1,6 @@
 # iOS Swift AsyncHttpClient
 
-Useful Swift iOS and MacOS Async HTTP Client
+Useful Swift iOS and MacOS Async HTTP Client.\
 Motto: Perform http requests in one string
 
 ## SPM Usage:
