@@ -24,11 +24,11 @@ struct Warehouse: Codable {
 let httpClient: AsyncHttpClient = AsyncHttpJSONClient()
 
 func fetchWarehouses() async throws -> [Warehouse] {
-    try await userSession.httpClient.get(url: URL(string: "https://my_sweet_url.com/warehouses"))
+    try await httpClient.get(url: URL(string: "https://my_sweet_url.com/warehouses"))
 }
 
 func update(warehouse: Warehouse) async throws {
-    try await userSession.httpClient.post(url: URL(string: "https://my_sweet_url.com/warehouse"), body: warehouse)
+    try await httpClient.post(url: URL(string: "https://my_sweet_url.com/warehouse"), body: warehouse)
 }
 
 ```
