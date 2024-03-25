@@ -9,9 +9,9 @@ import XCTest
 
 final class StringPerformanceTests: XCTestCase {
 
-    let s = "2022-09-05T10:35:08.217174"
-    var c = 0
-
+//    let s = "2022-09-05T10:35:08.217174"
+//    var c = 0
+//
 //    func testWarming() throws {
 //        self.measure {
 //            (0..<100).forEach {_ in _ = s.count}

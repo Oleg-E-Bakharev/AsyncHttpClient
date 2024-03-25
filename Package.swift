@@ -5,9 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "AsyncHttpClient",
-    platforms: [
-        .macOS(.v12), .iOS(.v13)
-    ],
+    platforms: [.macOS(.v12), .iOS(.v13)],
     products: [
         .library(
             name: "AsyncHttpClient",
