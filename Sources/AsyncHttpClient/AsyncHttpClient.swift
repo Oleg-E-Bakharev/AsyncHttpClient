@@ -8,6 +8,9 @@ public enum AsyncHttpRequestTuners {
     /// Тюнер запроса - позволяет как угодно настроить запрос
     case request((inout URLRequest) -> Void)
 
+    /// Тюнер ответа - позволяет валидировать и извлекать данные из заголовка ответа
+    case response((HTTPURLResponse) throws -> Void)
+
     /// Тюнер кодера. Позволяет кастомизировать кодер
     case encoder((inout JSONEncoder) -> Void)
 
@@ -16,6 +19,7 @@ public enum AsyncHttpRequestTuners {
 
     public enum Keys {
         case request
+        case response
         case encoder
         case decoder
     }

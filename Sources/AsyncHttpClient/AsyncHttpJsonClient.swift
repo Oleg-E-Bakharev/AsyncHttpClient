@@ -258,7 +258,15 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
             throw URLError.emptyResponse
         }
 
+        guard let response = response as? HTTPURLResponse else {
+            throw URLError.invalidResponse
+        }
+
         try validate(response, data: data)
+
+        if case .response(let responseTuner) = tuners[.response] {
+            try responseTuner(response)
+        }
 
         do {
             var decoder = JSONDecoder()
@@ -276,10 +284,7 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
         }
     }
 
-    private func validate(_ response: URLResponse, data: Data?) throws {
-        guard let response = response as? HTTPURLResponse else {
-            throw URLError.invalidResponse
-        }
+    private func validate(_ response: HTTPURLResponse, data: Data?) throws {
         if let responseValidator {
             try responseValidator.validate(response: response, data: data)
         } else if data?.count ?? 0 == 0 || response.isError {
