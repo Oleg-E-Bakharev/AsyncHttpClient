@@ -79,7 +79,7 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
 
     // MARK: - Private properties
 
-    private let configuration: URLSessionConfiguration
+    private var configuration: URLSessionConfiguration
 
     // Вызывается в случае бросания исключения вследствии ошибки или проверки ответа.
     private let requestRetrier: AsyncHttpRequestRetrier?
@@ -101,6 +101,14 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
         self.responseValidator = responseValidator
         self.dateFormatter = dateFormatter
         setupSessionConfiguration()
+    }
+
+    /// Recreate internal URLSession with new configuration.
+    /// Using for update accessToken in OAuth2
+    public func update(configuration: URLSessionConfiguration) {
+        self.configuration = configuration
+        setupSessionConfiguration()
+        session = URLSession(configuration: configuration)
     }
 
     // MARK: - AsyncHttpClient Methods
