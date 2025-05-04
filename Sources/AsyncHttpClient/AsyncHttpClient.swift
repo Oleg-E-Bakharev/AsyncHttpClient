@@ -160,7 +160,7 @@ public extension AsyncHttpClient {
 }
 
 public extension TimeInterval {
-    static var defaultAsyncRequestTimeout = 60.0
+    nonisolated(unsafe) static var defaultAsyncRequestTimeout = 60.0
 }
 
 public struct AsyncHttpClientEmpty: Codable {
