@@ -4,7 +4,7 @@
 import Foundation
 
 /// Расширенный парсер дат, подходящий для большинства формат дат в ISO8601
-public class ISO8601DateFormatterEx: DateFormatter {
+public class ISO8601DateFormatterEx: DateFormatter, @unchecked Sendable {
 
     public override func date(from string: String) -> Date? {
         switch string.utf8.count {
