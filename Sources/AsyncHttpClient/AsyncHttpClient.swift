@@ -3,6 +3,11 @@
 
 import Foundation
 
+@globalActor public actor AsyncNetwokActor {
+    public static let shared = AsyncNetwokActor()
+    private init() {}
+}
+
 /// Тюнеры запросов
 public enum AsyncHttpRequestTuners {
     /// Тюнер запроса - позволяет как угодно настроить запрос
@@ -17,15 +22,21 @@ public enum AsyncHttpRequestTuners {
     /// Тюнер декодера. Позволяет кастомизировать декодер
     case decoder((inout JSONDecoder) -> Void)
 
+    /// Тюнер ошибки. Случается бэкендеры путают транспортные ошибки с бизнесовыми.
+    /// Данный тюнер позволяет на стороне обработчика переопределить любой код ошибки как success 200 (true).
+    case error((URLError) -> Bool)
+
     public enum Keys {
         case request
         case response
         case encoder
         case decoder
+        case error
     }
 }
 
 /// Асинхронный HTTP клиент
+@AsyncNetwokActor
 public protocol AsyncHttpClient {
 
     var session: URLSession { get }

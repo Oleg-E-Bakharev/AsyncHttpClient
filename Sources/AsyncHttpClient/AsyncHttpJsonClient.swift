@@ -4,6 +4,7 @@
 import Foundation
 
 /// Протокол специальной реакции на некоторые ошибки.
+@AsyncNetwokActor
 public protocol AsyncHttpRequestRetrier {
     func shouldRetry(request: URLRequest, error: Error) async -> Bool
 }
@@ -68,7 +69,7 @@ private extension URLSession {
 }
 
 // MARK: - AsyncHttpJsonClient
-
+@AsyncNetwokActor
 public class AsyncHttpJsonClient: AsyncHttpClient {
 
     // MARK: - Public properties
@@ -270,7 +271,11 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
             throw URLError.invalidResponse
         }
 
-        try validate(response, data: data)
+        if case .error(let errorTuner) = tuners[.error] {
+            try validate(response, data: data, errorTuner: errorTuner)
+        } else {
+            try validate(response, data: data, errorTuner: nil)
+        }
 
         if case .response(let responseTuner) = tuners[.response] {
             try responseTuner(response)
@@ -292,14 +297,15 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
         }
     }
 
-    private func validate(_ response: HTTPURLResponse, data: Data?) throws {
+    private func validate(_ response: HTTPURLResponse, data: Data?, errorTuner: ((URLError)->Bool)?) throws {
         if let responseValidator {
             try responseValidator.validate(response: response, data: data)
         } else if data?.count ?? 0 == 0 || response.isError {
-            throw URLError(URLError.Code(rawValue: response.statusCode))
+            let urlError = URLError(URLError.Code(rawValue: response.statusCode))
+            if errorTuner?(urlError) == true { return }
+            throw urlError
         } else if response.mimeType != .jsonMimeType {
             throw URLError.invalidResponse
         }
     }
-
 }
