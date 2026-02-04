@@ -23,10 +23,12 @@ struct Warehouse: Codable {
 
 let httpClient: AsyncHttpClient = AsyncHttpJSONClient()
 
+@AsyncNetwokActor
 func fetchWarehouses() async throws -> [Warehouse] {
     try await httpClient.get(url: URL(string: "https://my_sweet_url.com/warehouses"))
 }
 
+@AsyncNetwokActor
 func update(warehouse: Warehouse) async throws {
     try await httpClient.post(url: URL(string: "https://my_sweet_url.com/warehouse"), body: warehouse)
 }
