@@ -1,17 +1,11 @@
-# iOS Swift AsyncHttpClient
+//
+//  Test.swift
+//  AsyncHttpClient
+//
+//  Created by Олег Бахарев on 04.02.2026.
+//
 
-Useful Swift iOS and MacOS Async HTTP Client.\
-Motto: Perform http requests in one string
-
-## SPM Usage:
-```swift
-    dependencies: [
-        .package(url: "https://github.com/Oleg-E-Bakharev/AsyncHttpClient", from: "1.1.0")
-    ],
-```
-
-## Usage sample:
-```swift
+import Testing
 
 import Foundation
 import AsyncHttpClient
@@ -34,9 +28,9 @@ struct NetworkClient {
     }
 }
 
-```
+struct Test {
 
-## History of changes:
-- 2.0.0:
-	- All code run in public global actor AsyncNetworkActor for convenience resove Swift6 isolation issues. 
-	- Added error tuner to hook errors when use-case errors maps to transort http-errors.
+    @Test func readmeSampleTest() async throws {
+    }
+
+}
