@@ -35,5 +35,5 @@ func update(warehouse: Warehouse) async throws {
 
 ## History of changes:
 - 2.0.0:
--- All code run in public global actor AsyncNetworkActor for convenience resove Swift6 isolation issues. 
--- Added error tuner to hook errors when use-case errors maps to transort http-errors.
+	- All code run in public global actor AsyncNetworkActor for convenience resove Swift6 isolation issues. 
+	- Added error tuner to hook errors when use-case errors maps to transort http-errors.
