@@ -3,8 +3,8 @@
 
 import Foundation
 
-@globalActor public actor AsyncNetwokActor {
-    public static let shared = AsyncNetwokActor()
+@globalActor public actor AsyncNetworkActor {
+    public static let shared = AsyncNetworkActor()
     private init() {}
 }
 
@@ -36,7 +36,7 @@ public enum AsyncHttpRequestTuners {
 }
 
 /// Асинхронный HTTP клиент
-@AsyncNetwokActor
+@AsyncNetworkActor
 public protocol AsyncHttpClient {
 
     var session: URLSession { get }

@@ -4,7 +4,7 @@
 import Foundation
 
 /// Протокол специальной реакции на некоторые ошибки.
-@AsyncNetwokActor
+@AsyncNetworkActor
 public protocol AsyncHttpRequestRetrier {
     func shouldRetry(request: URLRequest, error: Error) async -> Bool
 }
@@ -69,7 +69,7 @@ private extension URLSession {
 }
 
 // MARK: - AsyncHttpJsonClient
-@AsyncNetwokActor
+@AsyncNetworkActor
 public class AsyncHttpJsonClient: AsyncHttpClient {
 
     // MARK: - Public properties

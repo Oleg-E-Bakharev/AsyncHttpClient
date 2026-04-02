@@ -15,7 +15,7 @@ struct Warehouse: Codable {
     let title: String
 }
 
-@AsyncNetwokActor
+@AsyncNetworkActor
 struct NetworkClient {
     let httpClient: AsyncHttpClient = AsyncHttpJsonClient()
 
