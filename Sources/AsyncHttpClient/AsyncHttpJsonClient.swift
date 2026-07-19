@@ -75,12 +75,17 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
     // MARK: - Public properties
 
     public lazy var session: URLSession = {
-        URLSession(configuration: configuration)
+        URLSession(
+            configuration: configuration,
+            delegate: delegate,
+            delegateQueue: nil
+        )
     }()
 
     // MARK: - Private properties
 
     private var configuration: URLSessionConfiguration
+    private var delegate: URLSessionDelegate?
 
     // Вызывается в случае бросания исключения вследствии ошибки или проверки ответа.
     private let requestRetrier: AsyncHttpRequestRetrier?
@@ -93,11 +98,13 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
 
     public init(
         configuration: URLSessionConfiguration = URLSessionConfiguration.default,
+        delegate: URLSessionDelegate? = nil,
         requestRetrier: AsyncHttpRequestRetrier? = nil,
         responseValidator: AsyncHttpResponseValidator? = nil,
         dateFormatter: DateFormatter = ISO8601DateFormatterEx()
     ) {
         self.configuration = configuration
+        self.delegate = delegate
         self.requestRetrier = requestRetrier
         self.responseValidator = responseValidator
         self.dateFormatter = dateFormatter
@@ -106,10 +113,17 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
 
     /// Recreate internal URLSession with new configuration.
     /// Using for update accessToken in OAuth2
-    public func update(configuration: URLSessionConfiguration) {
+    public func update(
+        configuration: URLSessionConfiguration,
+        delegate: URLSessionDelegate?
+    ) {
         self.configuration = configuration
         setupSessionConfiguration()
-        session = URLSession(configuration: configuration)
+        session = URLSession(
+            configuration: configuration,
+            delegate: delegate,
+            delegateQueue: nil
+        )
     }
 
     // MARK: - AsyncHttpClient Methods
