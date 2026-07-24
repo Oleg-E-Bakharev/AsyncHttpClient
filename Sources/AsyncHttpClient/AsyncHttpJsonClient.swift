@@ -10,6 +10,7 @@ public protocol AsyncHttpRequestRetrier {
 }
 
 /// Протокол проверки ответов и генерации специфических ошибок.
+@AsyncNetworkActor
 public protocol AsyncHttpResponseValidator {
     func validate(response: HTTPURLResponse, data: Data?) throws
 }
