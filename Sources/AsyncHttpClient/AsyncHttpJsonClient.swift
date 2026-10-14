@@ -315,7 +315,9 @@ public class AsyncHttpJsonClient: AsyncHttpClient {
     private func validate(_ response: HTTPURLResponse, data: Data?, errorTuner: ((URLError)->Bool)?) throws {
         if let responseValidator {
             try responseValidator.validate(response: response, data: data)
-        } else if data?.count ?? 0 == 0 || response.isError {
+        }
+
+        if data?.count ?? 0 == 0 || response.isError {
             let urlError = URLError(URLError.Code(rawValue: response.statusCode))
             if errorTuner?(urlError) == true { return }
             throw urlError
